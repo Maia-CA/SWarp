@@ -1,0 +1,95 @@
+#
+#				swarp.spec.in
+#
+#  Process this file with autoconf to generate an RPM .spec packaging script.
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+#	This file part of:	SWarp
+#
+#	Copyright:		(C) 2005-2020 IAP/CNRS/SorbonneU
+#
+#	License:		GNU General Public License
+#
+#	SWarp is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#	SWarp is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#	You should have received a copy of the GNU General Public License
+#	along with SWarp. If not, see <http://www.gnu.org/licenses/>.
+#
+#	Last modified:		02/01/2020
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%define name @PACKAGE_TARNAME@
+%define version @PACKAGE_VERSION@
+%define release @PACKAGE_RELEASE@%{?dist}
+%define debug_package %{nil}
+%undefine _missing_build_ids_terminate_build
+
+Summary: resample and combine astronomical FITS images
+Name: %{name}
+Version: %{version}
+Release: %{release}
+Source0: http://astromatic.net/download/%{name}/%{name}-%{version}.tar.gz
+URL: http://astromatic.net/software/%{name}/
+License: GPL v3+
+Group: Sciences/Astronomy
+BuildRoot: %{_tmppath}/%{name}-buildroot
+BuildRequires: pkgconfig
+BuildRequires: cfitsio-devel >= 3.0
+
+%description
+SWarp is a program that resamples and coadd FITS images to any arbitrary
+astrometric projection recognized by the WCS standard.
+
+%prep
+%setup -q
+
+%build
+if test "$USE_BEST"; then
+%configure --enable-icc --enable-auto-flags --enable-best-link --with-release=@PACKAGE_RELEASE@
+elif test "$USE_ICC"; then
+%configure --enable-icc --with-release=@PACKAGE_RELEASE@
+else
+%configure --with-release=@PACKAGE_RELEASE@
+fi
+make %{?_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%doc AUTHORS BUGS ChangeLog COPYRIGHT HISTORY INSTALL LICENSE README.md THANKS
+%{_bindir}/@PACKAGE_TARNAME@
+%{_mandir}/man1/@PACKAGE_TARNAME@.1*
+%{_mandir}/manx/@PACKAGE_TARNAME@.x*
+%{_datadir}/@PACKAGE_TARNAME@
+
+%changelog
+* @DATE2@ @PACKAGER@ <@PACKAGE_BUGREPORT@>
+- Automatic RPM rebuild
+* Wed Jul 09 2003 Emmanuel Bertin <bertin@iap.fr>
+- RPM build for V2.0b6
+* Tue Apr 29 2003 Emmanuel Bertin <bertin@iap.fr>
+- RPM build for V1.42
+* Wed Mar 05 2003 Emmanuel Bertin <bertin@iap.fr>
+- RPM build for V1.40
+* Sat Jan 18 2003 Emmanuel Bertin <bertin@iap.fr>
+- RPM build for V1.39
+* Thu Nov 28 2002 Emmanuel Bertin <bertin@iap.fr>
+- RPM build for V1.38
+* Thu May 09 2002 Emmanuel Bertin <bertin@iap.fr>
+- First RPM build
+
+# end of file
